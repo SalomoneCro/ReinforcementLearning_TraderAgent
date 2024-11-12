@@ -1,4 +1,3 @@
-from GettingData import get_adj_close_on_date
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
