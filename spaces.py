@@ -1,5 +1,6 @@
 from gymnasium.spaces import Space
 import itertools
+import numpy as np
 
 class ObservationSpace(Space):
     """
@@ -12,12 +13,14 @@ class ObservationSpace(Space):
 
     def __init__(self, n_assets) -> None:
         self.n_assets = n_assets
-
-    def init_observations(self) -> None:
-        """
-        Generates all possible n-tuples of -1 and 1.
-        """
         self.observations = list(itertools.product([1, -1], repeat=self.n_assets))
+
+    def sample(self):
+        """
+        Muestra aleatoria de las posibles observaciones.
+        """
+        return self.observations[np.random.choice(len(self.observations))]
+
 
 
 class ActionSpace(Space):
@@ -29,9 +32,10 @@ class ActionSpace(Space):
 
     def __init__(self, n_assets) -> None:
         self.n_assets = n_assets
-
-    def init_actions(self) -> None:
-        """
-        Generates all possible n-tuples of -1, 0, 1.
-        """
         self.actions = list(itertools.product([1, -1, 0], repeat=self.n_assets))
+
+    def sample(self):
+        """
+        Muestra aleatoria de las posibles acciones.
+        """
+        return self.actions[np.random.choice(len(self.actions))]

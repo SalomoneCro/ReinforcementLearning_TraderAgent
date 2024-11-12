@@ -102,10 +102,13 @@ def get_stocks(tickers: list[str], start_date: str, end_date: str) -> pd.DataFra
     - end_date (str): End date for the data in 'YYYY-MM-DD' format.
 
     Returns:
-    - pd.DataFrame: A DataFrame containing the adjusted close prices for each ticker.
+    - pd.DataFrame: A DataFrame containing the adjusted close prices for each ticker with the index as strings.
     """
     stocks_data = yf.download(tickers, start=start_date, end=end_date, progress=False)['Adj Close']
     stocks_data.index = stocks_data.index.tz_localize(None)
+    
+    stocks_data.index = stocks_data.index.strftime('%Y-%m-%d')
+    
     return stocks_data
 
 def get_next_week(lista_fechas: list[str], fecha_objetivo: str) -> str:

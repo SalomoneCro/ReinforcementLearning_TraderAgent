@@ -8,22 +8,21 @@ from utils import get_stocks, get_next_week, prices_observation
 class Trader(gym.Env):
 
     def __init__(self, n_assets, tickers, start_date, end_date, initial_weights, initial_investment):
-        self.n_assets = n_assets
 
         self.observation_space = ObservationSpace(n_assets)
         self.action_space = ActionSpace(n_assets)
-        self.observation_space.init_observations()
-        self.action_space.init_actions()
 
         self.tickers = tickers
+        self.n_assets = len(tickers)
         
-        self.start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        self.end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
         self.stock_prices = get_stocks(tickers, start_date, end_date)
-        self.dates = self.stock_prices.index()
-        self.current_date = get_next_week(self.dates, start_date)
-        self.shares = (np.array(initial_weights) * initial_investment) / self.stock_prices.loc[start_date]
+        self.dates = self.stock_prices.index
+        self.start_date = self.dates[0]
+        self.end_date = self.dates[-1]
+        
+        self.current_date = get_next_week(self.dates, self.start_date)
+        self.shares = (np.array(initial_weights) * initial_investment) / self.stock_prices.loc[self.start_date]
         self.liquidity = 0
         self.initial_weights = initial_weights
         self.initial_investment = initial_investment
@@ -52,8 +51,9 @@ class Trader(gym.Env):
         obs = self._get_obs(self.current_date, next_date)
         self.current_date = next_date
         
-        
-        terminated = self.current_date >= self.end_date
+        current_date = datetime.strptime(self.current_date, '%Y-%m-%d')
+        end_date = datetime.strptime(self.end_date, '%Y-%m-%d')
+        terminated = current_date >= end_date
         truncated = False
         info = self._get_info()
 
@@ -63,8 +63,7 @@ class Trader(gym.Env):
         return prices_observation(current_date, next_date, self.tickers)
 
     def _get_info(self):
-        info = self.simulation.get_info()
-        return info
+        return dict(zip(self.tickers, self.shares))
 
     def calculate_reward(self):
        
