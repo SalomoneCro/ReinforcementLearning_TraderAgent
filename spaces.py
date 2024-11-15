@@ -1,8 +1,8 @@
-from gymnasium.spaces import Space
-import itertools
+from gymnasium.spaces import Box
 import numpy as np
+from gymnasium.spaces import MultiDiscrete
 
-class ObservationSpace(Space):
+class ObservationSpace(Box):
     """
     The observations are the information if the asset went down
     or up. An observation is an n-array where n is the number
@@ -11,31 +11,18 @@ class ObservationSpace(Space):
     -1. 
     """
 
-    def __init__(self, n_assets) -> None:
-        self.n_assets = n_assets
-        self.observations = list(itertools.product([1, -1], repeat=self.n_assets))
-
-    def sample(self):
-        """
-        Muestra aleatoria de las posibles observaciones.
-        """
-        return self.observations[np.random.choice(len(self.observations))]
+    def __init__(self, n_assets):
+        low = np.full(n_assets, -1, dtype=np.int8)
+        high = np.full(n_assets, 1, dtype=np.int8)
+        super().__init__(low, high, dtype=np.int8)
 
 
-
-class ActionSpace(Space):
+class ActionSpace(MultiDiscrete):
     """
     The actions are sell, hold and buy (-1, 0, 1 respectively).
     Each actions is an n-array containing the order for each asset
     where n is the number of assets in the portfolio
     """
 
-    def __init__(self, n_assets) -> None:
-        self.n_assets = n_assets
-        self.actions = list(itertools.product([1, -1, 0], repeat=self.n_assets))
-
-    def sample(self):
-        """
-        Muestra aleatoria de las posibles acciones.
-        """
-        return self.actions[np.random.choice(len(self.actions))]
+    def __init__(self, n_assets):
+        super().__init__([3] * n_assets)

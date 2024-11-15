@@ -36,14 +36,26 @@ class Trader(gym.Env):
         self._elapsed_steps = None      
         
 
-    def reset(self):
+    def reset(self, **kwargs):
+        seed = kwargs.get('seed', None)
+        if seed is not None:
+            np.random.seed(seed)  # Establecer semilla para reproducibilidad
+
+        # Reiniciar el estado del entorno
         self.current_date = get_next_week(self.dates, self.start_date)
         self.liquidity = 0
         self.shares = (np.array(self.initial_weights) * self.initial_investment) / self.stock_prices.loc[self.start_date]
 
+        # Devolver la observación inicial como un arreglo NumPy
+        obs = self._get_obs(self.start_date, self.current_date)
+        
+        return obs, {}
+
 
     def step(self, action):
-        
+        # Adaption because of the MultiDiscrete type
+        action = action - 1 
+
         self.rebalance(action)
 
         next_date = get_next_week(self.dates, self.current_date)
@@ -61,7 +73,9 @@ class Trader(gym.Env):
         return obs, reward, terminated, truncated, info
 
     def _get_obs(self, current_date, next_date):
-        return prices_observation(current_date, next_date, self.tickers)
+        obs = prices_observation(current_date, next_date, self.tickers)
+        obs = np.array(list(obs.values()), dtype=np.float32)
+        return obs
 
     def _get_info(self):
         return dict(zip(self.tickers, self.shares))
