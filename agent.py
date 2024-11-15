@@ -43,14 +43,15 @@ class Trader(gym.Env):
 
 
     def step(self, action):
-        reward = self.calculate_reward()
+        
         self.rebalance(action)
-        
+
         next_date = get_next_week(self.dates, self.current_date)
-        
+
         obs = self._get_obs(self.current_date, next_date)
         self.current_date = next_date
-        
+        reward = self.calculate_reward()
+
         current_date = datetime.strptime(self.current_date, '%Y-%m-%d')
         end_date = datetime.strptime(self.end_date, '%Y-%m-%d')
         terminated = current_date >= end_date
@@ -69,40 +70,29 @@ class Trader(gym.Env):
        
         portfolio_value = self.liquidity
         for i in range(len(self.shares)):
-            portfolio_value += self.shares[i] * self.stock_prices.loc[self.current_date, self.tickers[i]]
+            portfolio_value += self.shares[self.tickers[i]] * self.stock_prices.loc[self.current_date, self.tickers[i]]
 
         return portfolio_value
 
 
     def rebalance(self, action):
-        
         buys = []
-        
-        # First sell for more liquidity
+
+        # First sell for more liquidity (validate actions)
         for i in range(len(action)):
             if action[i] == -1:
-                self.liquidity += self.shares[i] * self.stock_prices.loc[self.current_date, self.tickers[i]]
-                self.shares[i] = 0
+                if self.shares[self.tickers[i]] > 0:  # Only sell if there are shares
+                    self.liquidity += self.shares[self.tickers[i]] * self.stock_prices.loc[self.current_date, self.tickers[i]]
+                    self.shares[self.tickers[i]] = 0
             elif action[i] == 1:
                 buys.append(i)
-        
-        
-        # Then buy
-        cash_per_asset = self.liquidity / len(buys)
-        for i in buys:
-            self.shares[i] += cash_per_asset / self.stock_prices.loc[self.current_date, self.tickers[i]]
-        
+
+        # Then buy (validate actions)
         if len(buys) != 0:
+            cash_per_asset = self.liquidity / len(buys)
+
+            for i in buys:
+                if cash_per_asset > 0:  # Only buy if there is liquidity
+                    self.shares[self.tickers[i]] += cash_per_asset / self.stock_prices.loc[self.current_date, self.tickers[i]]
+
             self.liquidity = 0
-
-    # def calculate_reward(self):
-    #     if self.actual_date != self.end_date:
-    #         return 0
-    #     else:
-    #         reward = self.liquidity_available
-            
-    #         for i in range(len(self.shares)):
-    #             if self.shares[i] > 0:
-    #                 reward += self.shares[i] * self.stock_prices.loc[self.current_date, self.tickers[i]]
-
-    #     return reward
