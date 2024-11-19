@@ -1,6 +1,5 @@
-from spaces import ObservationSpace, ActionSpace
 from agent import Trader
-
+from utils import get_stocks
 
 
 tickers = ['AAPL', 'NVDA', 'ORCL']
@@ -9,8 +8,9 @@ end_date = '2024-03-01'
 initial_weights = [0.0,0.0,1.0]
 initial_investment = 100
 n_assets = len(tickers)
+stock_prices = get_stocks(tickers, start_date, end_date)
 
-bot = Trader(n_assets, tickers, start_date, end_date, initial_weights, initial_investment)
+bot = Trader(stock_prices, n_assets, tickers, initial_weights, initial_investment)
 
 
 print(len(bot.dates))

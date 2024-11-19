@@ -2,12 +2,19 @@ import gymnasium as gym
 from spaces import ObservationSpace, ActionSpace
 import numpy as np
 from datetime import datetime
-from utils import get_stocks, get_next_week, prices_observation
+from utils import get_next_week, prices_observation
 
 
 class Trader(gym.Env):
 
-    def __init__(self, n_assets, tickers, start_date, end_date, initial_weights, initial_investment):
+    def __init__(
+            self, 
+            stock_prices, 
+            n_assets, 
+            tickers, 
+            initial_weights, 
+            initial_investment
+        ):
 
         self.observation_space = ObservationSpace(n_assets)
         self.action_space = ActionSpace(n_assets)
@@ -16,7 +23,7 @@ class Trader(gym.Env):
         self.n_assets = len(tickers)
         
 
-        self.stock_prices = get_stocks(tickers, start_date, end_date)
+        self.stock_prices = stock_prices
         self.dates = self.stock_prices.index
         self.start_date = self.dates[0]
         self.end_date = self.dates[-1]
@@ -54,7 +61,7 @@ class Trader(gym.Env):
 
     def step(self, action):
         # Adaption because of the MultiDiscrete type
-        action = action - 1 
+        action = action - np.ones(len(action)) 
 
         self.rebalance(action)
 
