@@ -7,7 +7,7 @@ from utils import get_stocks
 tickers = ['TSLA', 'GOOGL', 'MELI', 'MSI', 'NVDA']  # Tickers de ejemplo
 n_assets = len(tickers)
 start_date = "2024-06-01"
-end_date = "2024-09-01"
+end_date = "2024-11-01"
 initial_weights = [0.2, 0.2, 0.2, 0.2, 0.2]  # Porcentaje inicial asignado a cada activo
 initial_investment = 100 # Inversión inicial en dólares
 stock_prices = get_stocks(tickers, start_date, end_date)
