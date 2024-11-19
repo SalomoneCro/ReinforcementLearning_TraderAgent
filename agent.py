@@ -22,7 +22,6 @@ class Trader(gym.Env):
         self.tickers = tickers
         self.n_assets = len(tickers)
         
-
         self.stock_prices = stock_prices
         self.dates = self.stock_prices.index
         self.start_date = self.dates[0]

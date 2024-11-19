@@ -1,16 +1,16 @@
-import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from agent import Trader
 from utils import get_stocks
 
 # Configuración inicial del entorno
-n_assets = 3  # Número de activos
-tickers = ["AAPL", "MSFT", "GOOGL"]  # Tickers de ejemplo
-start_date = "2023-01-01"
-end_date = "2023-02-01"
-initial_weights = [0.33, 0.33, 0.34]  # Porcentaje inicial asignado a cada activo
-initial_investment = 100000  # Inversión inicial en dólares
+
+tickers = ['TSLA', 'GOOGL', 'MELI', 'MSI', 'NVDA']  # Tickers de ejemplo
+n_assets = len(tickers)
+start_date = "2024-01-01"
+end_date = "2024-06-01"
+initial_weights = [0.2, 0.2, 0.2, 0.2, 0.2] 
+initial_investment = 100
 stock_prices = get_stocks(tickers, start_date, end_date)
 
 # Crear el entorno de trading
@@ -34,10 +34,10 @@ model = PPO(
 )
 
 # Entrenar el modelo
-timesteps = 10  # Número de pasos de entrenamiento
+timesteps = 300000  # Número de pasos de entrenamiento
 model.learn(total_timesteps=timesteps, progress_bar=True)
 
 # Guardar el modelo entrenado
-model.save("ppo_trader_model")
+model.save("ppo_trader_model2")
 
 print("Entrenamiento completado y modelo guardado.")

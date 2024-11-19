@@ -1,16 +1,16 @@
 from stable_baselines3 import PPO
 from agent import Trader
-import numpy as np
-from utils import get_stocks as Uwu 
+from utils import get_stocks
 
 # Configuración inicial del entorno para evaluación
-n_assets = 3  # Número de activos
-tickers = ["AAPL", "MSFT", "GOOGL"]  # Tickers de ejemplo
-start_date = "2023-02-01"
-end_date = "2023-03-01"
-initial_weights = [0.33, 0.33, 0.34]  # Porcentaje inicial asignado a cada activo
-initial_investment = 100000  # Inversión inicial en dólares
-stock_prices = Uwu(tickers, start_date, end_date)
+  # Número de activos
+tickers = ['TSLA', 'GOOGL', 'MELI', 'MSI', 'NVDA']  # Tickers de ejemplo
+n_assets = len(tickers)
+start_date = "2024-06-01"
+end_date = "2024-09-01"
+initial_weights = [0.2, 0.2, 0.2, 0.2, 0.2]  # Porcentaje inicial asignado a cada activo
+initial_investment = 100 # Inversión inicial en dólares
+stock_prices = get_stocks(tickers, start_date, end_date)
 
 # Crear el entorno de eavluación
 eval_env = Trader(
@@ -22,10 +22,10 @@ eval_env = Trader(
 )
 
 # Cargar el modelo entrenado
-model = PPO.load("ppo_trader_model")
+model = PPO.load("ppo_trader_model2")
 
 # Evaluación
-obs = eval_env.vec_reset()
+obs, _ = eval_env.reset()
 done = False
 portfolio_values = []  # Lista para almacenar el valor del portafolio
 
@@ -57,4 +57,4 @@ plt.xlabel("Días de Trading")
 plt.ylabel("Valor del Portafolio ($)")
 plt.legend()
 plt.grid()
-plt.show()
+plt.savefig('PortfolioPerformance')
