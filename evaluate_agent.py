@@ -10,7 +10,7 @@ plt.style.use('dark_background')
 tickers = ['TSLA', 'GOOGL', 'MELI', 'MSI', 'NVDA']  
 n_assets = len(tickers)
 start_date = "2024-06-01"
-end_date = "2024-11-01"
+end_date = "2024-11-15"
 initial_weights = [0.2, 0.2, 0.2, 0.2, 0.2]  
 initial_investment = 100
 stock_prices = get_stocks(tickers, start_date, end_date)
