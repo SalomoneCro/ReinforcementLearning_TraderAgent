@@ -27,7 +27,7 @@ def get_next_open_market_date(date: str) -> str:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             # Check if the market was open on the given date
-            data = yf.download('SPY', start=date_str, end=next_date_str, progress=False)  # SPY is a common ticker for market checks
+            data = yf.download('MELI', start=date_str, end=next_date_str, progress=False)  # SPY is a common ticker for market checks
         
         # If data is available, the market was open on 'date_obj'
         if not data.empty:
@@ -74,7 +74,7 @@ def get_adj_close_on_date(tickers: list[str], date: str) -> dict[str, float | No
 
     return adj_close_prices
 
-def prices_observation(start_date: str, end_date: str, tickers: list[str]) -> dict[str, int]:
+def prices_observation(start_date: str, end_date: str, stock_prices: list[str]) -> dict[str, int]:
     """
     Compares adjusted close prices of tickers between two dates to observe price changes.
 
@@ -86,10 +86,10 @@ def prices_observation(start_date: str, end_date: str, tickers: list[str]) -> di
     Returns:
     - dict[str, int]: A dictionary with tickers as keys and values indicating price increase (1) or decrease (-1).
     """
-    prices0 = get_adj_close_on_date(tickers=tickers, date=start_date)
-    prices1 = get_adj_close_on_date(tickers=tickers, date=end_date)
+    prices0 = stock_prices.loc[start_date]
+    prices1 = stock_prices.loc[end_date]
 
-    comparison_dict = {key: 1 if prices1[key] > prices0[key] else -1 for key in tickers}
+    comparison_dict = {key: 1 if prices1[key] > prices0[key] else -1 for key in stock_prices.columns}
     return comparison_dict
 
 def get_stocks(tickers: list[str], start_date: str, end_date: str) -> pd.DataFrame:

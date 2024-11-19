@@ -80,7 +80,7 @@ class Trader(gym.Env):
         return obs, reward, terminated, truncated, info
 
     def _get_obs(self, current_date, next_date):
-        obs = prices_observation(current_date, next_date, self.tickers)
+        obs = prices_observation(current_date, next_date, self.stock_prices)
         obs = np.array(list(obs.values()), dtype=np.float32)
         return obs
 
