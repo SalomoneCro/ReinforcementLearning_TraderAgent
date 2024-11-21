@@ -156,9 +156,9 @@ def save_plots(all_simulations, dates, tickers):
     # Portfolio performance over time
     plt.figure(figsize=(12, 6))
     plt.plot(dates, best_portfolio_values, label="Portfolio Value")
-    plt.title("Valor del Portafolio a través del Tiempo (Mejor Simulación)")
-    plt.xlabel("Fecha")
-    plt.ylabel("Valor del Portafolio ($)")
+    plt.title("Portfolio value over time (best simulation)")
+    plt.xlabel("Date")
+    plt.ylabel("Value ($)")
     plt.xticks(rotation=45)
     plt.grid(linewidth=0.3)
     plt.legend()
@@ -170,9 +170,9 @@ def save_plots(all_simulations, dates, tickers):
     for i, ticker in enumerate(tickers):
         plt.plot(dates, best_shares_over_time[:, i], label=ticker)
 
-    plt.title("Cantidad de Acciones en Función del Tiempo (Mejor Simulación)")
-    plt.xlabel("Fecha")
-    plt.ylabel("Cantidad de Acciones")
+    plt.title("Shares amount over time")
+    plt.xlabel("Date")
+    plt.ylabel("Shares")
     plt.xticks(rotation=45)
     plt.grid(linewidth=0.3)
     plt.legend()

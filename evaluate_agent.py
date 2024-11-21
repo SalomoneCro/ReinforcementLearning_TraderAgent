@@ -29,7 +29,7 @@ def init_parser() -> argparse.ArgumentParser:
 def main():
     args = init_parser().parse_args()
 
-    # Configuración inicial del entorno para evaluación
+    # Define portdolio
     tickers = ['TSLA', 'GOOGL', 'MELI', 'MSI', 'NVDA']
     n_assets = len(tickers)
     start_date = "2024-06-01"
@@ -38,7 +38,7 @@ def main():
     initial_investment = 100
     stock_prices = get_stocks(tickers, start_date, end_date)
 
-    # Inicialización del entorno
+    # Create the environment
     eval_env = Trader(
         stock_prices,
         n_assets,
@@ -47,10 +47,10 @@ def main():
         initial_investment
     )
 
-    # Cargar el modelo entrenado
+    # Load the trained agent
     model = PPO.load(f'./Models/{args.model_name}')
 
-    # SIMULACIONES
+    # SIMULATIONS
 
     all_simulations = []
     n_simulations = args.n_simulations
@@ -79,7 +79,7 @@ def main():
             "final_value": portfolio_values[-1]
         })
 
-    # RESULTADOS
+    # RESULTS
 
     save_plots(all_simulations, dates, tickers)
     print_metrics(all_simulations, initial_investment)
