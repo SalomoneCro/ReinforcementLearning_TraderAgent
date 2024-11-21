@@ -35,11 +35,11 @@ model = PPO(
 )
 a = time()
 # Entrenar el modelo
-timesteps = 3000000  # Número de pasos de entrenamiento
+timesteps = 3#000000  # Número de pasos de entrenamiento
 model.learn(total_timesteps=timesteps, progress_bar=True)
 
 # Guardar el modelo entrenado
-model.save("ppo_trader_model2")
+model.save("./Models/ppo_trader_model3")
 
 print("Entrenamiento completado y modelo guardado.")
 print((time() - a)/ 60 / 60)

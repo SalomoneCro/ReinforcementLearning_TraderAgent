@@ -28,7 +28,7 @@ class Trader(gym.Env):
         self.end_date = self.dates[-1]
         
         self.current_date = get_next_week(self.dates, self.start_date)
-        self.shares = (np.array(initial_weights) * initial_investment) / self.stock_prices.loc[self.start_date]
+        self.shares = (np.array(initial_weights) * initial_investment) / self.stock_prices.loc[self.current_date]
         self.liquidity = 0
         self.initial_weights = initial_weights
         self.initial_investment = initial_investment

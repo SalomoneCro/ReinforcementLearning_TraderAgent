@@ -24,7 +24,7 @@ eval_env = Trader(
 )
 
 # Cargar el modelo entrenado
-model = PPO.load("ppo_trader_model2")
+model = PPO.load("./Models/ppo_trader_model2")
 
 # SIMULACIONES
 
@@ -73,7 +73,7 @@ plt.xticks(rotation=45)
 plt.grid(linewidth=0.3)
 plt.legend()
 plt.tight_layout()
-plt.savefig('PortfolioPerformance')
+plt.savefig('./Images/PortfolioPerformance')
 
 
 # Graficar la cantidad de acciones en función del tiempo
@@ -88,7 +88,7 @@ plt.xticks(rotation=45)
 plt.grid(linewidth=0.3)
 plt.legend()
 plt.tight_layout()
-plt.savefig('Shares')
+plt.savefig('./Images/Shares')
 
 
 # Métricas de las simulaciones
