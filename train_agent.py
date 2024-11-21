@@ -2,6 +2,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from agent import Trader
 from utils import get_stocks
+from time import time
 
 # Configuración inicial del entorno
 
@@ -32,12 +33,13 @@ model = PPO(
     verbose=1,    # Nivel de detalle en la consola
     tensorboard_log="./ppo_trader_tensorboard/",  # Carpeta para TensorBoard
 )
-
+a = time()
 # Entrenar el modelo
-timesteps = 300000  # Número de pasos de entrenamiento
+timesteps = 3000000  # Número de pasos de entrenamiento
 model.learn(total_timesteps=timesteps, progress_bar=True)
 
 # Guardar el modelo entrenado
 model.save("ppo_trader_model2")
 
 print("Entrenamiento completado y modelo guardado.")
+print((time() - a)/ 60 / 60)
