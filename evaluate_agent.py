@@ -51,7 +51,6 @@ def main():
     model = PPO.load(f'./Models/{args.model_name}')
 
     # SIMULATIONS
-
     all_simulations = []
     n_simulations = args.n_simulations
     for i in range(n_simulations):

@@ -184,12 +184,14 @@ def print_metrics(all_simulations, initial_investment):
     '''
     Prints metrics of the portfolio management of the simulations.
     '''
+    
+    final_values = [sim["final_value"] for sim in all_simulations]
+    returns = 100*(final_values - initial_investment*np.ones(len(final_values)))/initial_investment
 
-    final_values = [sim["final_value"]/initial_investment for sim in all_simulations]
-    max_gain = (initial_investment - max(final_values))/initial_investment
-    min_gain = (initial_investment - min(final_values))/initial_investment
-    mean_gain = (initial_investment - np.mean(final_values))/initial_investment
-    quartiles = (initial_investment*np.ones(3) - np.percentile(final_values, [25, 50, 75]))/(initial_investment*np.ones(3))
+    max_gain = max(returns)
+    min_gain = min(returns)
+    mean_gain = np.mean(returns)
+    quartiles = np.percentile(returns, [25, 50, 75])
 
     print("\nMETRICS:")
     print(f"Max return: % {max_gain:,.2f}")
@@ -197,13 +199,14 @@ def print_metrics(all_simulations, initial_investment):
     print(f"Avarage return: % {mean_gain:,.2f}")
     print(f"Quartiles (25%, 50%, 75%): % {quartiles}")
 
-    std_gain = np.std(final_values)
-    median_gain = np.median(final_values)
-    loss_probability = np.mean(np.array(final_values) < 0) * 100
-    var_95 = np.percentile(final_values, 5)
+     
+    std_gain = np.std(returns)
+    median_gain = np.median(returns)
+    loss_probability = np.mean(returns < 0) * 100
+    var_95 = np.percentile(returns, 5)
 
     
     print(f"std: % {std_gain:,.2f}")
     print(f"Median: % {median_gain:,.2f}")
     print(f"Simulation with negative returns: % {loss_probability:.2f}")
-    print(f"Valor en Riesgo (VaR) al 95%: % {var_95:,.2f}")
+    print(f"Value at Risk (VaR) al 95%: % {var_95:,.2f}")
