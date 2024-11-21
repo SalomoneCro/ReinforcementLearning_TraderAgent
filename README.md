@@ -32,3 +32,5 @@ To evaluate an agent you can run the following command:
 ```bash
 python3 evaluate_agent.py --model_name Agent1 --n_simulations 100
 ```
+
+To define a different portfolio, training dates, evaluation dates and initial allocation it is needed to change the lines that define that on the main functions of both train_agent.py and evaluate_agent.py
