@@ -1,7 +1,8 @@
+import numpy as np
+import pandas as pd
+from datetime import datetime
 import gymnasium as gym
 from spaces import ObservationSpace, ActionSpace
-import numpy as np
-from datetime import datetime
 from utils import get_next_week, prices_observation
 
 
@@ -9,11 +10,11 @@ class Trader(gym.Env):
 
     def __init__(
             self, 
-            stock_prices, 
-            n_assets, 
-            tickers, 
-            initial_weights, 
-            initial_investment
+            stock_prices: pd.DataFrame, 
+            n_assets: int, 
+            tickers: list, 
+            initial_weights: list, 
+            initial_investment: list
         ):
 
         self.observation_space = ObservationSpace(n_assets)
@@ -45,14 +46,13 @@ class Trader(gym.Env):
     def reset(self, **kwargs):
         seed = kwargs.get('seed', None)
         if seed is not None:
-            np.random.seed(seed)  # Establecer semilla para reproducibilidad
+            np.random.seed(seed)
 
-        # Reiniciar el estado del entorno
+        # Reset state of the agent
         self.current_date = get_next_week(self.dates, self.start_date)
         self.liquidity = 0
         self.shares = (np.array(self.initial_weights) * self.initial_investment) / self.stock_prices.loc[self.start_date]
 
-        # Devolver la observación inicial como un arreglo NumPy
         obs = self._get_obs(self.start_date, self.current_date)
         
         return obs, {}
@@ -78,13 +78,16 @@ class Trader(gym.Env):
 
         return obs, reward, terminated, truncated, info
 
+
     def _get_obs(self, current_date, next_date):
         obs = prices_observation(current_date, next_date, self.stock_prices)
         obs = np.array(list(obs.values()), dtype=np.float32)
         return obs
 
+
     def _get_info(self):
         return dict(zip(self.tickers, self.shares))
+
 
     def calculate_reward(self):
        
@@ -98,7 +101,7 @@ class Trader(gym.Env):
     def rebalance(self, action):
         buys = []
 
-        # First sell for more liquidity (validate actions)
+        # First sell for more liquidity
         for i in range(len(action)):
             if action[i] == -1:
                 if self.shares[self.tickers[i]] > 0:  # Only sell if there are shares
@@ -107,7 +110,7 @@ class Trader(gym.Env):
             elif action[i] == 1:
                 buys.append(i)
 
-        # Then buy (validate actions)
+        # Then buy
         if len(buys) != 0:
             cash_per_asset = self.liquidity / len(buys)
 

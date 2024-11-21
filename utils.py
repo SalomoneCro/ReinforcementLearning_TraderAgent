@@ -1,7 +1,12 @@
 import yfinance as yf
 import pandas as pd
+import numpy as np
+import os
 from datetime import datetime, timedelta
 import warnings
+import matplotlib.pyplot as plt
+
+
 
 def get_next_open_market_date(date: str) -> str:
     """
@@ -37,6 +42,7 @@ def get_next_open_market_date(date: str) -> str:
         date_obj = next_date_obj
 
     raise ValueError("No open market date found within the next 10 days.")
+
 
 def get_adj_close_on_date(tickers: list[str], date: str) -> dict[str, float | None]:
     """
@@ -74,6 +80,7 @@ def get_adj_close_on_date(tickers: list[str], date: str) -> dict[str, float | No
 
     return adj_close_prices
 
+
 def prices_observation(start_date: str, end_date: str, stock_prices: list[str]) -> dict[str, int]:
     """
     Compares adjusted close prices of tickers between two dates to observe price changes.
@@ -91,6 +98,7 @@ def prices_observation(start_date: str, end_date: str, stock_prices: list[str]) 
 
     comparison_dict = {key: 1 if prices1[key] > prices0[key] else -1 for key in stock_prices.columns}
     return comparison_dict
+
 
 def get_stocks(tickers: list[str], start_date: str, end_date: str) -> pd.DataFrame:
     """
@@ -111,6 +119,7 @@ def get_stocks(tickers: list[str], start_date: str, end_date: str) -> pd.DataFra
     
     return stocks_data
 
+
 def get_next_week(lista_fechas: list[str], fecha_objetivo: str) -> str:
     """
     Finds the date in a list that is the closest to 7 days in the future of a given date.
@@ -128,3 +137,73 @@ def get_next_week(lista_fechas: list[str], fecha_objetivo: str) -> str:
     fecha_limite = fecha_objetivo_dt + timedelta(days=7)
     fechas_futuras = [fecha for fecha in fechas_dt if fecha >= fecha_limite]
     return (min(fechas_futuras) if fechas_futuras else fechas_dt[-1]).strftime('%Y-%m-%d')
+
+
+def save_plots(all_simulations, dates, tickers):
+    '''
+    Save best simulation portfolio performance over time and 
+    shares allocation over time.
+    '''
+    plt.style.use('dark_background')
+
+    if not os.path.exists('./Images'):
+        os.makedirs('./Images')
+    
+    best_simulation = max(all_simulations, key=lambda sim: sim["final_value"])
+    best_portfolio_values = best_simulation["portfolio_values"]
+    best_shares_over_time = np.array(best_simulation["shares_over_time"])
+
+    # Portfolio performance over time
+    plt.figure(figsize=(12, 6))
+    plt.plot(dates, best_portfolio_values, label="Portfolio Value")
+    plt.title("Valor del Portafolio a través del Tiempo (Mejor Simulación)")
+    plt.xlabel("Fecha")
+    plt.ylabel("Valor del Portafolio ($)")
+    plt.xticks(rotation=45)
+    plt.grid(linewidth=0.3)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('./Images/PortfolioPerformance')
+
+    # Shares allocation over time
+    plt.figure(figsize=(12, 6))
+    for i, ticker in enumerate(tickers):
+        plt.plot(dates, best_shares_over_time[:, i], label=ticker)
+
+    plt.title("Cantidad de Acciones en Función del Tiempo (Mejor Simulación)")
+    plt.xlabel("Fecha")
+    plt.ylabel("Cantidad de Acciones")
+    plt.xticks(rotation=45)
+    plt.grid(linewidth=0.3)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('./Images/Shares')
+
+
+def print_metrics(all_simulations, initial_investment):
+    '''
+    Prints metrics of the portfolio management of the simulations.
+    '''
+
+    final_values = [sim["final_value"]/initial_investment for sim in all_simulations]
+    max_gain = (initial_investment - max(final_values))/initial_investment
+    min_gain = (initial_investment - min(final_values))/initial_investment
+    mean_gain = (initial_investment - np.mean(final_values))/initial_investment
+    quartiles = (initial_investment*np.ones(3) - np.percentile(final_values, [25, 50, 75]))/(initial_investment*np.ones(3))
+
+    print("\nMETRICS:")
+    print(f"Max return: % {max_gain:,.2f}")
+    print(f"Min return: % {min_gain:,.2f}")
+    print(f"Avarage return: % {mean_gain:,.2f}")
+    print(f"Quartiles (25%, 50%, 75%): % {quartiles}")
+
+    std_gain = np.std(final_values)
+    median_gain = np.median(final_values)
+    loss_probability = np.mean(np.array(final_values) < 0) * 100
+    var_95 = np.percentile(final_values, 5)
+
+    
+    print(f"std: % {std_gain:,.2f}")
+    print(f"Median: % {median_gain:,.2f}")
+    print(f"Simulation with negative returns: % {loss_probability:.2f}")
+    print(f"Valor en Riesgo (VaR) al 95%: % {var_95:,.2f}")
