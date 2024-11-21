@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 from stable_baselines3 import PPO
@@ -6,25 +7,31 @@ from utils import get_stocks
 
 plt.style.use('dark_background')
 
+# Argumentos del script
+parser = argparse.ArgumentParser(description="Evaluar un modelo PPO entrenado")
+parser.add_argument("--model_name", type=str, default="./Models/ppo_trader_model2",
+                    help="Ruta y nombre del modelo a cargar")
+args = parser.parse_args()
+
 # Configuración inicial del entorno para evaluación
-tickers = ['TSLA', 'GOOGL', 'MELI', 'MSI', 'NVDA']  
+tickers = ['TSLA', 'GOOGL', 'MELI', 'MSI', 'NVDA']
 n_assets = len(tickers)
 start_date = "2024-06-01"
 end_date = "2024-11-15"
-initial_weights = [0.2, 0.2, 0.2, 0.2, 0.2]  
+initial_weights = [0.2, 0.2, 0.2, 0.2, 0.2]
 initial_investment = 100
 stock_prices = get_stocks(tickers, start_date, end_date)
 
 eval_env = Trader(
-    stock_prices, 
-    n_assets, 
-    tickers, 
-    initial_weights, 
+    stock_prices,
+    n_assets,
+    tickers,
+    initial_weights,
     initial_investment
 )
 
 # Cargar el modelo entrenado
-model = PPO.load("./Models/ppo_trader_model2")
+model = PPO.load(f'./Models/{args.model_name}')
 
 # SIMULACIONES
 
@@ -33,23 +40,22 @@ n_simulations = 100
 for i in range(n_simulations):
     obs, _ = eval_env.reset()
     done = False
-    
+
     portfolio_values = [initial_investment]
     shares_over_time = [eval_env.shares.copy()]
     dates = [eval_env.start_date]
-    
+
     while not done:
         action, _ = model.predict(obs, deterministic=False)
-        
+
         obs, reward, terminated, truncated, info = eval_env.step(action)
-        
+
         done = terminated or truncated
 
         portfolio_values.append(eval_env.calculate_reward())
         shares_over_time.append(eval_env.shares.copy())
         dates.append(eval_env.current_date)
-    
-   
+
     all_simulations.append({
         "portfolio_values": portfolio_values,
         "shares_over_time": shares_over_time,
@@ -62,7 +68,6 @@ best_simulation = max(all_simulations, key=lambda sim: sim["final_value"])
 best_portfolio_values = best_simulation["portfolio_values"]
 best_shares_over_time = np.array(best_simulation["shares_over_time"])  # Convertir a NumPy array
 
-
 # Graficar el valor del portafolio a través del tiempo
 plt.figure(figsize=(12, 6))
 plt.plot(dates, best_portfolio_values, label="Portfolio Value")
@@ -74,7 +79,6 @@ plt.grid(linewidth=0.3)
 plt.legend()
 plt.tight_layout()
 plt.savefig('./Images/PortfolioPerformance')
-
 
 # Graficar la cantidad de acciones en función del tiempo
 plt.figure(figsize=(12, 6))
@@ -90,7 +94,6 @@ plt.legend()
 plt.tight_layout()
 plt.savefig('./Images/Shares')
 
-
 # Métricas de las simulaciones
 final_values = [sim["final_value"] for sim in all_simulations]
 max_gain = max(final_values)
@@ -103,7 +106,6 @@ print(f"Máxima ganancia: ${max_gain:,.2f}")
 print(f"Mínima ganancia: ${min_gain:,.2f}")
 print(f"Ganancia promedio: ${mean_gain:,.2f}")
 print(f"Cuartiles (25%, 50%, 75%): {quartiles}")
-
 
 std_gain = np.std(final_values)
 median_gain = np.median(final_values)

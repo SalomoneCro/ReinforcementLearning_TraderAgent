@@ -1,12 +1,25 @@
+import argparse
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from agent import Trader
 from utils import get_stocks
 from time import time
 
-# Configuración inicial del entorno
+# Configurar argparse para recibir parámetros desde la línea de comandos
+parser = argparse.ArgumentParser(description="Entrena un modelo PPO para trading")
+parser.add_argument(
+    "--model_name", 
+    type=str, 
+    default="ppo_trader_model_default", 
+    help="Nombre para guardar el modelo entrenado"
+)
 
-tickers = ['TSLA', 'GOOGL', 'MELI', 'MSI', 'NVDA']  # Tickers de ejemplo
+# Parsear los argumentos
+args = parser.parse_args()
+model_name = args.model_name
+
+# Configuración inicial del entorno
+tickers = ['TSLA', 'GOOGL', 'MELI', 'MSI', 'NVDA']  
 n_assets = len(tickers)
 start_date = "2024-01-01"
 end_date = "2024-06-01"
@@ -23,23 +36,24 @@ env = Trader(
     initial_investment
 )
 
-# Convertir el entorno para que funcione en paralelo con Stable-Baselines
 vec_env = make_vec_env(lambda: env, n_envs=1)
 
 # Configuración y entrenamiento del modelo PPO
 model = PPO(
-    "MlpPolicy",  # Política de red neuronal (MLP)
-    vec_env,      # Entorno
-    verbose=1,    # Nivel de detalle en la consola
-    tensorboard_log="./ppo_trader_tensorboard/",  # Carpeta para TensorBoard
+    "MlpPolicy",  
+    vec_env,      
+    verbose=1,    
+    tensorboard_log="./ppo_trader_tensorboard/",  
 )
+
 a = time()
+
 # Entrenar el modelo
-timesteps = 3#000000  # Número de pasos de entrenamiento
+timesteps = 300000  
 model.learn(total_timesteps=timesteps, progress_bar=True)
 
 # Guardar el modelo entrenado
-model.save("./Models/ppo_trader_model3")
+model.save(f"./Models/{model_name}")
 
 print("Entrenamiento completado y modelo guardado.")
-print((time() - a)/ 60 / 60)
+print((time() - a) / 60 / 60)
