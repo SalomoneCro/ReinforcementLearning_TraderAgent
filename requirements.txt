@@ -6,5 +6,4 @@ stable_baselines3==2.3.2
 tensorboard==2.18.0
 tqdm==4.67.0
 rich==13.9.4
-argparse==1.4.0
 matplotlib==3.9.2
